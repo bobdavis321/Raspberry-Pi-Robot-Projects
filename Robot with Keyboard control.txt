@@ -1,0 +1,61 @@
+# Robot with Keyboard control
+# Just two motors for now
+# f=forward
+# b=back
+# r=right
+# l=left
+# s=stop
+# q=quit
+
+# import curses and GPIO
+import curses
+import RPi.GPIO as GPIO
+GPIO.setwarnings(False)
+
+# GPIO setup & define output pins
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(7,GPIO.OUT)
+GPIO.setup(11,GPIO.OUT)
+GPIO.setup(13,GPIO.OUT)
+GPIO.setup(15,GPIO.OUT)
+
+# Turn on instant key response
+screen = curses.initscr()
+curses.cbreak()
+
+while True:   
+        char = screen.getch()
+        if char == ord('q'):
+            break
+        elif char == ord('f'):
+            GPIO.output(7,False)
+            GPIO.output(11,True)
+            GPIO.output(13,False)
+            GPIO.output(15,True)
+        elif char == ord('b'):
+            GPIO.output(7,True)
+            GPIO.output(11,False)
+            GPIO.output(13,True)
+            GPIO.output(15,False)
+        elif char == ord('r'):
+            GPIO.output(7,True)
+            GPIO.output(11,False)
+            GPIO.output(13,False)
+            GPIO.output(15,True)
+        elif char == ord('l'):
+            GPIO.output(7,False)
+            GPIO.output(11,True)
+            GPIO.output(13,True)
+            GPIO.output(15,False)
+        elif char == ord('s'):
+            GPIO.output(7,False)
+            GPIO.output(11,False)
+            GPIO.output(13,False)
+            GPIO.output(15,False)
+         
+# Close down curses properly
+curses.nocbreak()
+screen.keypad(0)
+curses.echo()
+curses.endwin()
+GPIO.cleanup()

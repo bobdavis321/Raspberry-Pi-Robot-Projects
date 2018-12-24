@@ -1,0 +1,46 @@
+# Robot Servo Keyboard control
+# 
+# f=forward
+# b=back
+# q=quit
+
+# import curses and GPIO
+import curses
+import RPi.GPIO as GPIO
+import time
+GPIO.setwarnings(False)
+
+# GPIO numbering & define output pins
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(7,GPIO.OUT)
+p=GPIO.PWM(7,50)
+p.start(6)
+
+# Turn on instant key response
+key = curses.initscr()
+curses.cbreak()
+key.keypad(1)
+key.nodelay(1)
+pos=10
+
+while True:   
+    char = key.getch()
+    if char == ord('q'):
+        break
+    elif char == ord('f'):
+        if (pos<12):
+            pos=pos+1
+    elif char == ord('b'):
+        if (pos>1):
+            pos=pos-1
+    p.ChangeDutyCycle(pos)    
+    time.sleep(1)
+ 
+# Close down properly
+p.stop
+curses.nocbreak()
+key.keypad(0)
+curses.echo()
+curses.endwin()
+GPIO.cleanup()
+    

@@ -1,0 +1,153 @@
+# Robot with Tank and Missile launcher
+# requires two motor controllers
+# f = forward
+# b = back
+# r = right
+# l = left
+# s = stop
+# q = quit
+# h = headlights
+# < > = launcher right, left
+# u = launcher up
+# d = launcher down
+# o = Fire
+
+# import curses time and GPIO
+import curses
+import time
+import RPi.GPIO as GPIO
+GPIO.setwarnings(False)
+headl=1
+
+# GPIO numbering & define output pins
+GPIO.setmode(GPIO.BOARD)
+# Motors
+GPIO.setup(7,GPIO.OUT)
+GPIO.setup(11,GPIO.OUT)
+GPIO.setup(13,GPIO.OUT)
+GPIO.setup(15,GPIO.OUT)
+# Turret
+GPIO.setup(3,GPIO.OUT)
+GPIO.setup(5,GPIO.OUT)
+GPIO.setup(8,GPIO.OUT)
+GPIO.setup(10,GPIO.OUT)
+# Lights + Fire
+GPIO.setup(12,GPIO.OUT)
+GPIO.setup(16,GPIO.OUT)
+
+# Turn on instant key response
+key = curses.initscr()
+curses.cbreak()
+key.keypad(1)
+key.nodelay(1)
+
+def Forward():
+    GPIO.output(7, False)
+    GPIO.output(11, True)
+    GPIO.output(13, False)
+    GPIO.output(15, True)
+
+def Back():
+    GPIO.output(7, True)
+    GPIO.output(11, False)
+    GPIO.output(13, True)
+    GPIO.output(15, False)
+
+def Right():
+    GPIO.output(7, True)
+    GPIO.output(11, False)
+    GPIO.output(13, False)
+    GPIO.output(15, True)
+
+def Left():
+    GPIO.output(7, False)
+    GPIO.output(11, True)
+    GPIO.output(13, True)
+    GPIO.output(15, False)
+
+def Stop():
+    GPIO.output(7, False)
+    GPIO.output(11, False)
+    GPIO.output(13, False)
+    GPIO.output(15, False)
+    GPIO.output(3, False)
+    GPIO.output(5, False)
+    GPIO.output(8, False)
+    GPIO.output(10, False)
+
+def Up():
+    GPIO.output(3, False)
+    GPIO.output(5, True)
+    GPIO.output(8, False)
+    GPIO.output(10, False)
+
+def Down():
+    GPIO.output(3, True)
+    GPIO.output(5, False)
+    GPIO.output(8, False)
+    GPIO.output(10, False)
+
+def TRight():
+    GPIO.output(3, False)
+    GPIO.output(5, False)
+    GPIO.output(8, False)
+    GPIO.output(10, True)
+
+def TLeft():
+    GPIO.output(3, False)
+    GPIO.output(5, False)
+    GPIO.output(8, True)
+    GPIO.output(10, False)
+
+while True:   
+        char = key.getch()
+        if char == ord('q'):
+            break
+        elif char == ord('f'):
+            Forward()
+        elif char == ord('b'):
+            Back()
+        elif char == ord('r'):
+            Right()
+            time.sleep(0.5)
+            Stop()
+        elif char == ord('l'):
+            Left()
+            time.sleep(0.5)
+            Stop()
+        elif char == ord('u'):
+            Up()
+            time.sleep(0.5)
+            Stop()
+        elif char == ord('d'):
+            Down()
+            time.sleep(0.5)
+            Stop()
+        elif char == ord('h'):
+            if headl == 1:
+                GPIO.output(12, False)
+                headl = 0
+            else:
+                GPIO.output(12, True)
+                headl = 1
+        elif char == ord('o'):
+            GPIO.output(16, True)
+            time.sleep(1)
+            GPIO.output(16, False)
+        elif char == ord('>'):
+            TRight()
+            time.sleep(0.5)
+            Stop()
+        elif char == ord('<'):
+            TLeft()
+            time.sleep(0.5)
+            Stop()
+        elif char == ord('s'):
+            Stop()
+         
+# Close down properly
+curses.nocbreak()
+key.keypad(0)
+curses.echo()
+curses.endwin()
+GPIO.cleanup()

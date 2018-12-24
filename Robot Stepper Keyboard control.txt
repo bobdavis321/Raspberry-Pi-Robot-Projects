@@ -1,0 +1,84 @@
+# Robot Stepper Keyboard control
+# Just single phase for now
+# f=forward
+# b=back
+# s=stop
+# q=quit
+
+# import curses and GPIO
+import curses
+import RPi.GPIO as GPIO
+import time
+GPIO.setwarnings(False)
+
+# GPIO numbering & define output pins
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(7,GPIO.OUT)
+GPIO.setup(11,GPIO.OUT)
+GPIO.setup(13,GPIO.OUT)
+GPIO.setup(15,GPIO.OUT)
+
+# Turn on instant key response
+key = curses.initscr()
+curses.cbreak()
+key.keypad(1)
+key.nodelay(1)
+
+while True:   
+        char = key.getch()
+        if char == ord('q'):
+            break
+        elif char == ord('f'):
+            GPIO.output(7,True)
+            GPIO.output(11,False)
+            GPIO.output(13,False)
+            GPIO.output(15,False)
+            time.sleep(.1)
+            GPIO.output(7,False)
+            GPIO.output(11,True)
+            GPIO.output(13,False)
+            GPIO.output(15,False)
+            time.sleep(.1)
+            GPIO.output(7,False)
+            GPIO.output(11,False)
+            GPIO.output(13,True)
+            GPIO.output(15,False)
+            time.sleep(.1)
+            GPIO.output(7,False)
+            GPIO.output(11,False)
+            GPIO.output(13,False)
+            GPIO.output(15,True)
+            time.sleep(.1)
+        elif char == ord('b'):
+            GPIO.output(7,False)
+            GPIO.output(11,False)
+            GPIO.output(13,False)
+            GPIO.output(15,True)
+            time.sleep(.1)
+            GPIO.output(7,False)
+            GPIO.output(11,False)
+            GPIO.output(13,True)
+            GPIO.output(15,False)
+            time.sleep(.1)
+            GPIO.output(7,False)
+            GPIO.output(11,True)
+            GPIO.output(13,False)
+            GPIO.output(15,False)
+            time.sleep(.1)
+            GPIO.output(7,True)
+            GPIO.output(11,False)
+            GPIO.output(13,False)
+            GPIO.output(15,False)
+            time.sleep(.1)
+        elif char == ord('s'):
+            GPIO.output(7,False)
+            GPIO.output(11,False)
+            GPIO.output(13,False)
+            GPIO.output(15,False)
+         
+# Close down curses properly
+curses.nocbreak()
+key.keypad(0)
+curses.echo()
+curses.endwin()
+GPIO.cleanup()

@@ -1,0 +1,116 @@
+# ARM Servo Keyboard control
+# 
+# WERTYU = increase servo 1-5
+# ASDFGH = Center servo 1-5
+# ZXCVBN = Decrease servo 1-5
+# Range is 2.5=0, 7.5=90, 12.5=180
+# q=quit
+
+# import curses and GPIO
+import curses
+import RPi.GPIO as GPIO
+import time
+GPIO.setwarnings(False)
+
+# GPIO numbering & define output pins
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(7,GPIO.OUT)
+GPIO.setup(11,GPIO.OUT)
+GPIO.setup(12,GPIO.OUT)
+GPIO.setup(13,GPIO.OUT)
+GPIO.setup(15,GPIO.OUT)
+GPIO.setup(16,GPIO.OUT)
+
+# Set blank timing
+p7=GPIO.PWM(7,50)
+p11=GPIO.PWM(11,50)
+p12=GPIO.PWM(12,50)
+p13=GPIO.PWM(13,50)
+p15=GPIO.PWM(15,50)
+p16=GPIO.PWM(16,50)
+
+p7.start(5)
+p11.start(5)
+p12.start(5)
+p13.start(5)
+p15.start(5)
+p16.start(5)
+
+# Turn on instant key response
+key = curses.initscr()
+curses.cbreak()
+key.keypad(1)
+key.nodelay(1)
+# Set default positions
+pos7=8
+pos11=8
+pos12=8
+pos13=8
+pos15=8
+pos16=8
+
+while True:   
+    char = key.getch()
+    if char == ord('q'):
+        break
+    elif char == ord('w'):
+        if (pos7>2): pos7=pos7-.5
+    elif char == ord('e'):
+        if (pos11>2): pos11=pos11-.5
+    elif char == ord('r'):
+        if (pos12>2): pos12=pos12-.5
+    elif char == ord('t'):
+        if (pos13>2): pos13=pos13-.5
+    elif char == ord('y'):
+        if (pos15>2): pos15=pos15-.5
+    elif char == ord('u'):
+        if (pos16>2): pos16=pos16-.5
+
+
+    elif char == ord('z'):
+        if (pos7<13): pos7=pos7+.5
+    elif char == ord('x'):
+        if (pos11<13): pos11=pos11+.5
+    elif char == ord('c'):
+        if (pos12<13): pos12=pos12+.5
+    elif char == ord('v'):
+        if (pos13<13): pos13=pos13+.5
+    elif char == ord('b'):
+        if (pos15<13): pos15=pos15+.5
+    elif char == ord('n'):
+        if (pos16<13): pos16=pos16+.5
+
+    elif char == ord('a'):
+        pos7=7.5
+    elif char == ord('s'):
+        pos11=7.5
+    elif char == ord('d'):
+        pos12=7.5
+    elif char == ord('f'):
+        pos13=7.5
+    elif char == ord('g'):
+        pos15=7.5
+    elif char == ord('h'):
+        pos16=7.5
+ 
+    p7.ChangeDutyCycle(pos7)    
+    p11.ChangeDutyCycle(pos11)    
+    p12.ChangeDutyCycle(pos12)    
+    p13.ChangeDutyCycle(pos13)    
+    p15.ChangeDutyCycle(pos15)
+    p16.ChangeDutyCycle(pos16)
+    time.sleep(1)
+ 
+# Close down properly
+p7.stop
+p11.stop
+p12.stop
+p13.stop
+p15.stop
+p16.stop
+curses.nocbreak()
+key.keypad(0)
+curses.echo()
+curses.endwin()
+GPIO.cleanup()
+    

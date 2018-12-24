@@ -1,0 +1,141 @@
+# Robot with Ultrasonic and Servo
+# Follows commands when encounters something turns.
+
+import RPi.GPIO as GPIO
+import time
+import curses
+# Pin Assignments
+Trigger = 18
+Echo = 22
+servo_pin = 12
+duty_cycle = 7.5
+distance = 40
+
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(7, GPIO.OUT)
+GPIO.setup(11, GPIO.OUT)
+GPIO.setup(13, GPIO.OUT)
+GPIO.setup(15, GPIO.OUT)
+GPIO.setup(Trigger, GPIO.OUT)
+GPIO.setup(Echo, GPIO.IN)
+GPIO.setup(servo_pin, GPIO.OUT)
+GPIO.output(Trigger, False)
+pwm_servo = GPIO.PWM(servo_pin, 50)
+pwm_servo.start(duty_cycle)
+key=curses.initscr()
+#curses.cbreak()
+key.keypad(1)
+key.nodelay(1)
+
+def Forward():
+    GPIO.output(7, False)
+    GPIO.output(11, True)
+    GPIO.output(13, False)
+    GPIO.output(15, True)
+
+def Back():
+    GPIO.output(7, True)
+    GPIO.output(11, False)
+    GPIO.output(13, True)
+    GPIO.output(15, False)
+
+def Right():
+    GPIO.output(7, True)
+    GPIO.output(11, False)
+    GPIO.output(13, False)
+    GPIO.output(15, True)
+
+def Left():
+    GPIO.output(7, False)
+    GPIO.output(11, True)
+    GPIO.output(13, True)
+    GPIO.output(15, False)
+
+def Stop():
+    GPIO.output(7, False)
+    GPIO.output(11, False)
+    GPIO.output(13, False)
+    GPIO.output(15, False)
+
+def ReadSensor():
+#    GPIO.output(Trigger, False)  
+#    time.sleep(0.1)  # Delay
+    GPIO.output(Trigger, True)
+    time.sleep(0.00001)
+    GPIO.output(Trigger, False)
+    while GPIO.input(Echo) == 0:
+        pstart = time.time()
+    while GPIO.input(Echo) == 1:
+        pend = time.time()
+    pduration = pend - pstart
+    distance = pduration * 17150
+    distance = round(distance, 1)
+    return distance
+
+def ReadAhead():
+    pwm_servo.ChangeDutyCycle(7.5)
+    time.sleep(0.5)
+    dahead = ReadSensor()
+    print "Ahead "+str(dahead)
+    print "\r"
+    return dahead
+
+def ReadSides():
+    pwm_servo.ChangeDutyCycle(11)
+    time.sleep(0.5)
+    dleft = ReadSensor()
+    pwm_servo.ChangeDutyCycle(4)
+    time.sleep(0.5)
+    dright = ReadSensor()
+    pwm_servo.ChangeDutyCycle(7.5)
+    time.sleep(0.5)
+    print "left "+str(dleft)+" right "+str(dright)
+    print "\r"
+    return dleft, dright
+
+try:
+    while (True):
+        char=key.getch()
+        if char==ord('q'):
+            break
+        elif char==ord('b'):
+            Back()
+            time.sleep(1)
+            Stop()
+        elif char==ord('r'):
+            Right()
+            time.sleep(1)
+            Stop()
+        elif char==ord('l'):
+            Left()
+            time.sleep(1)
+            Stop()
+        elif char==ord('s'):
+            Stop()
+        elif char==ord('f'):
+            dahead = ReadAhead()
+            if dahead < distance:
+                Stop()
+                dleft, dright = ReadSides()
+                if dright > distance:
+                    Right()
+                    time.sleep(1)
+                    Stop()
+                elif dleft > distance:
+                    Left()
+                    time.sleep(1)
+                    Stop()
+                else:
+                    Stop()
+            else:
+                Forward()
+                time.sleep(1)
+                Stop()
+finally:
+    pwm_servo.ChangeDutyCycle(7.5)
+    Stop()
+    curses.nocbreak()
+    key.keypad(0)
+    curses.echo()
+    curses.endwin()
+    GPIO.cleanup()

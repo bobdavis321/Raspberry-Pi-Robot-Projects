@@ -1,0 +1,122 @@
+# Robot with Air Hogs Missile launcher
+# requires one motor controller
+# requires 6 port optical isolated relays
+# f = forward
+# b = back
+# r = right
+# l = left
+# s = stop
+# q = quit
+# <> = launcher right, left
+# u = launcher up
+# d = launcher down
+# o = Fire
+
+# import curses and GPIO
+import curses
+import time
+import RPi.GPIO as GPIO
+GPIO.setwarnings(False)
+headl=1
+
+# GPIO numbering & define output pins
+GPIO.setmode(GPIO.BOARD)
+# Motors
+GPIO.setup(7,GPIO.OUT)
+GPIO.setup(11,GPIO.OUT)
+GPIO.setup(13,GPIO.OUT)
+GPIO.setup(15,GPIO.OUT)
+# Air Hogs
+GPIO.setup(3,GPIO.OUT) #up
+GPIO.setup(5,GPIO.OUT) #down
+GPIO.setup(8,GPIO.OUT) #fire
+GPIO.setup(10,GPIO.OUT)#right
+GPIO.setup(12,GPIO.OUT)#left
+GPIO.setup(16,GPIO.OUT)#demo
+
+# Turn on instant key response
+key = curses.initscr()
+curses.cbreak()
+key.keypad(1)
+key.nodelay(1)
+
+def Forward():
+    GPIO.output(7, False)
+    GPIO.output(11, True)
+    GPIO.output(13, False)
+    GPIO.output(15, True)
+
+def Back():
+    GPIO.output(7, True)
+    GPIO.output(11, False)
+    GPIO.output(13, True)
+    GPIO.output(15, False)
+
+def Right():
+    GPIO.output(7, True)
+    GPIO.output(11, False)
+    GPIO.output(13, False)
+    GPIO.output(15, True)
+
+def Left():
+    GPIO.output(7, False)
+    GPIO.output(11, True)
+    GPIO.output(13, True)
+    GPIO.output(15, False)
+
+def Stop():
+    GPIO.output(7, False)
+    GPIO.output(11, False)
+    GPIO.output(13, False)
+    GPIO.output(15, False)
+    GPIO.output(3, False)
+    GPIO.output(5, False)
+    GPIO.output(8, False)
+    GPIO.output(10, False)
+    GPIO.output(12, False)
+
+while True:   
+        char = key.getch()
+        if char == ord('q'):
+            break
+        elif char == ord('f'):
+            Forward()
+        elif char == ord('b'):
+            Back()
+        elif char == ord('r'):
+            Right()
+            time.sleep(0.5)
+            Stop()
+        elif char == ord('l'):
+            Left()
+            time.sleep(0.5)
+            Stop()
+        elif char == ord('u'):
+            GPIO.output(3, True)
+            time.sleep(0.15)
+            Stop()
+        elif char == ord('d'):
+            GPIO.output(5, True)
+            time.sleep(0.15)
+            Stop()
+        elif char == ord('o'):
+            GPIO.output(8, True)
+            time.sleep(0.5)
+            Stop()
+        elif char == ord('>'):
+            GPIO.output(10, True)
+            time.sleep(0.15)
+            Stop()
+        elif char == ord('<'):
+            GPIO.output(12, True)
+            time.sleep(0.15)
+            Stop()
+        elif char == ord('s'):
+            Stop()
+         
+# Close down curses properly
+curses.nocbreak()
+key.keypad(0)
+curses.echo()
+curses.endwin()
+GPIO.cleanup()
